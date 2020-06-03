@@ -138,7 +138,10 @@
 
         private static void Help()
         {
-            Console.WriteLine("Usage:r\n\tsver [-f|-a|-v] <filename>");
+            Console.WriteLine("SharpVerion 1.00");
+            Console.WriteLine("A command-line utility that shows .NET assembly information");
+            Console.WriteLine("https://github.com/vurdalakov/sharpversion");
+            Console.WriteLine("Usage:\n\tsver [-f|-a|-v] <filename>");
             Environment.Exit(1);
         }
     }
