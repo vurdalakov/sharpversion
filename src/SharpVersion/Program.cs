@@ -63,32 +63,44 @@
                     Help();
                 }
 
-                var fileInfo = new FileInfo(fileName);
-
-                if (0 == printFlags)
+                if (Directory.Exists(fileName))
                 {
-                    PrintSummary(fileInfo.FullName);
-                    return;
+                    ProcessDirectory(fileName);
                 }
-
-                if (1 == (printFlags & 1))
+                else
                 {
-                    PrintFileInfo(fileInfo);
-                }
-
-                if (2 == (printFlags & 2))
-                {
-                    PrintAssemblyName(fileInfo.FullName);
-                }
-
-                if (4 == (printFlags & 4))
-                {
-                    PrintVersionInfo(fileInfo.FullName);
+                    ProcessFile(fileName, printFlags);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"ERROR:\r\n{ex.Message}");
+            }
+        }
+
+        private static void ProcessFile(String fileName, Int32 printFlags)
+        {
+            var fileInfo = new FileInfo(fileName);
+
+            if (0 == printFlags)
+            {
+                PrintSummary(fileInfo.FullName);
+                return;
+            }
+
+            if (1 == (printFlags & 1))
+            {
+                PrintFileInfo(fileInfo);
+            }
+
+            if (2 == (printFlags & 2))
+            {
+                PrintAssemblyName(fileInfo.FullName);
+            }
+
+            if (4 == (printFlags & 4))
+            {
+                PrintVersionInfo(fileInfo.FullName);
             }
         }
 
@@ -128,6 +140,7 @@
             Console.WriteLine($"Created:                  {fileInfo.CreationTime:yyyy-MM-ddTHH-mm-ss-ffff}");
             Console.WriteLine($"Modified:                 {fileInfo.LastWriteTime:yyyy-MM-ddTHH-mm-ss-ffff}");
             Console.WriteLine($"Accessed:                 {fileInfo.LastAccessTime:yyyy-MM-ddTHH-mm-ss-ffff}");
+            Console.WriteLine($"Attributes:               {fileInfo.Attributes}");
         }
 
         private static void PrintAssemblyName(String filePath)
@@ -175,12 +188,26 @@
             Console.WriteLine($"Comments:                 '{versionInfo.Comments}'");
         }
 
+        private static void ProcessDirectory(String directoryPath)
+        {
+            var directoryInfo = new DirectoryInfo(directoryPath);
+
+            Console.WriteLine("--- Directory info:");
+
+            Console.WriteLine($"Directory name:  '{directoryInfo.Name}'");
+            Console.WriteLine($"Directory path:  '{directoryInfo.FullName}'");
+            Console.WriteLine($"Created:         {directoryInfo.CreationTime:yyyy-MM-ddTHH-mm-ss-ffff}");
+            Console.WriteLine($"Modified:        {directoryInfo.LastWriteTime:yyyy-MM-ddTHH-mm-ss-ffff}");
+            Console.WriteLine($"Accessed:        {directoryInfo.LastAccessTime:yyyy-MM-ddTHH-mm-ss-ffff}");
+            Console.WriteLine($"Attributes:      {directoryInfo.Attributes}");
+        }
+
         private static void Help()
         {
             Console.WriteLine("SharpVerion 1.01");
             Console.WriteLine("A command-line utility that shows .NET assembly information");
             Console.WriteLine("https://github.com/vurdalakov/sharpversion");
-            Console.WriteLine("Usage:\n\tsver [-f|-a|-v|-p] <filename>");
+            Console.WriteLine("Usage:\n\tsver [-f|-a|-v|-p] <file name|directory name>");
             Console.WriteLine("-f - print all file info");
             Console.WriteLine("-a - print all assembly info");
             Console.WriteLine("-v - print all version info");
