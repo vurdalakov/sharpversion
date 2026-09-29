@@ -204,8 +204,13 @@
 
         private static void Help()
         {
-            Console.WriteLine("SharpVerion 1.01");
-            Console.WriteLine("A command-line utility that shows .NET assembly information");
+            var assembly = Assembly.GetExecutingAssembly();
+            var title = assembly.GetCustomAttribute<AssemblyTitleAttribute>().Title;
+            var description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>().Description;
+            var version = assembly.GetName().Version;
+
+            Console.WriteLine($"{title} {version.Major}.{version.Minor:D2}");
+            Console.WriteLine(description);
             Console.WriteLine("https://github.com/vurdalakov/sharpversion");
             Console.WriteLine("Usage:\n\tsver [-f|-a|-v|-p] <file name|directory name>");
             Console.WriteLine("-f - print all file info");

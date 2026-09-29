@@ -1,17 +1,24 @@
 # SharpVersion
 
-A command-line utility that shows .NET assembly information.
+[SharpVersion](https://github.com/vurdalakov/sharpversion) is a command-line utility that shows .NET assembly information.
 
-### Usage
+## Usage
 
+* `sver <filename>`    - shows basic version information.
 * `sver -a <filename>` - shows .NET assembly information - like assembly version or public key token.
 * `sver -f <filename>` - shows standard file information - like size and last accessed time.
 * `sver -v <filename>` - shows all fields of file version record - like file version and product name.
-* `sver <filename>` - shows all of the above.
+* `sver -p <filename>` - shows all of the above.
 
-### Downloads
+## Downloads
 
-* [03.06.2020 - Version 1.00](zip/sver_1_00.zip)
+* From the [releases page](https://github.com/vurdalakov/sharpversion/releases).
+
+## License
+
+`SharpVersion` is distributed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
+
+## Examples
 
 ### Example output 1
 
