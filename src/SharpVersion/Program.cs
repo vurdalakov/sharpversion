@@ -39,6 +39,9 @@
                             case 'v':
                                 printFlags = 4;
                                 break;
+                            case 'p':
+                                printFlags = 7;
+                                break;
                             default:
                                 Help();
                                 break;
@@ -55,17 +58,18 @@
                     }
                 }
 
-                if (0 == printFlags)
-                {
-                    printFlags = 7;
-                }
-
                 if (String.IsNullOrEmpty(fileName))
                 {
                     Help();
                 }
 
                 var fileInfo = new FileInfo(fileName);
+
+                if (0 == printFlags)
+                {
+                    PrintSummary(fileInfo.FullName);
+                    return;
+                }
 
                 if (1 == (printFlags & 1))
                 {
@@ -88,9 +92,36 @@
             }
         }
 
+        private static Boolean TryGetAssemblyName(String filePath, out AssemblyName assemblyName)
+        {
+            try
+            {
+                assemblyName = AssemblyName.GetAssemblyName(filePath);
+                return true;
+            }
+            catch (BadImageFormatException)
+            {
+                assemblyName = null;
+                return false; // native DLL or other non-managed file
+            }
+        }
+
+        private static void PrintSummary(String filePath)
+        {
+            var assemblyVersion = TryGetAssemblyName(filePath, out var assemblyName) ? $"'{assemblyName.Version}'" : "(not a .NET assembly)";
+            Console.WriteLine($"Assembly version:         {assemblyVersion}");
+
+            var versionInfo = FileVersionInfo.GetVersionInfo(filePath);
+            Console.WriteLine($"File version:             '{versionInfo.FileVersion}'");
+            Console.WriteLine($"Product version:          '{versionInfo.ProductVersion}'");
+
+            Console.WriteLine("--- Run 'sver -h' for more options");
+        }
+
         private static void PrintFileInfo(FileInfo fileInfo)
         {
             Console.WriteLine("--- File info:");
+
             Console.WriteLine($"File name:                '{fileInfo.Name}'");
             Console.WriteLine($"File path:                '{fileInfo.FullName}'");
             Console.WriteLine($"File size:                {fileInfo.Length:N0} bytes");
@@ -101,25 +132,33 @@
 
         private static void PrintAssemblyName(String filePath)
         {
-            var assemblyName = AssemblyName.GetAssemblyName(filePath);
-
             Console.WriteLine("--- Assembly name:");
-            Console.WriteLine($"Name:                     '{assemblyName.Name}'");
+
+            if (!TryGetAssemblyName(filePath, out var assemblyName))
+            {
+                Console.WriteLine("Not a .NET assembly");
+                return;
+            }
+
+            Console.WriteLine($"Name:                    '{assemblyName.Name}'");
             Console.WriteLine($"Version:                  '{assemblyName.Version}'");
+            Console.WriteLine($"Version compatibility:    '{assemblyName.VersionCompatibility}'");
             Console.WriteLine($"Culture:                  '{(String.IsNullOrEmpty(assemblyName.CultureName) ? "neutral" : assemblyName.CultureName)}'");
             Console.WriteLine($"Hash algorithm:           '{assemblyName.HashAlgorithm}'");
             Console.WriteLine($"Processor architecture:   '{assemblyName.ProcessorArchitecture}'");
             Console.WriteLine($"Public key token:         '{assemblyName.GetPublicKeyToken().ToHexString()}'");
             Console.WriteLine($"Flags:                    '{assemblyName.Flags}'");
+            Console.WriteLine($"Content type:             '{assemblyName.ContentType}'");
             //Console.WriteLine($"Public key:               '{assemblyName.GetPublicKey().ToHexString()}'");
             Console.WriteLine($"Full name:                '{assemblyName.FullName}'");
         }
 
         private static void PrintVersionInfo(String filePath)
         {
+            Console.WriteLine("--- Version info:");
+
             var versionInfo = FileVersionInfo.GetVersionInfo(filePath);
 
-            Console.WriteLine("--- Version info:");
             Console.WriteLine($"File description:         '{versionInfo.FileDescription}'");
             Console.WriteLine($"File version:             '{versionInfo.FileVersion}'");
             Console.WriteLine($"Product name:             '{versionInfo.ProductName}'");
@@ -138,10 +177,14 @@
 
         private static void Help()
         {
-            Console.WriteLine("SharpVerion 1.00");
+            Console.WriteLine("SharpVerion 1.01");
             Console.WriteLine("A command-line utility that shows .NET assembly information");
             Console.WriteLine("https://github.com/vurdalakov/sharpversion");
-            Console.WriteLine("Usage:\n\tsver [-f|-a|-v] <filename>");
+            Console.WriteLine("Usage:\n\tsver [-f|-a|-v|-p] <filename>");
+            Console.WriteLine("-f - print all file info");
+            Console.WriteLine("-a - print all assembly info");
+            Console.WriteLine("-v - print all version info");
+            Console.WriteLine("-p - print it all");
             Environment.Exit(1);
         }
     }
